@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Fase 2 — Mockups Cuadrantes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 24px; }
+  h1 { font-size: 20px; color: #333; margin-bottom: 8px; }
+  .subtitle { color: #666; font-size: 14px; margin-bottom: 32px; }
+  .screens { display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start; }
+  .screen-group { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .screen-label { font-size: 13px; font-weight: 600; color: #555; text-align: center; }
+  .phone {
+    width: 360px; min-height: 640px;
+    background: #fff; border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    overflow: hidden; display: flex; flex-direction: column;
+    border: 1px solid #ddd;
+  }
+  .status-bar { background: #1976D2; height: 24px; }
+  .top-bar {
+    background: #1976D2; color: white;
+    padding: 12px 16px 16px; font-size: 18px; font-weight: 600;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .top-bar .back { font-size: 22px; cursor: pointer; opacity: 0.9; }
+  .content { flex: 1; padding: 16px; overflow-y: auto; background: #fafafa; }
+
+  /* ---- Pantalla 1: Cargando PDF ---- */
+  .loading-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; padding: 40px; }
+  .spinner { width: 48px; height: 48px; border: 4px solid #e3f2fd; border-top-color: #1976D2; border-radius: 50%; animation: spin 0.9s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 17px; font-weight: 600; color: #333; text-align: center; }
+  .loading-sub { font-size: 14px; color: #888; text-align: center; }
+
+  /* ---- Pantalla 1b: Error PDF ---- */
+  .error-state { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; padding: 40px; }
+  .error-icon { font-size: 48px; }
+  .error-title { font-size: 17px; font-weight: 600; color: #c62828; text-align: center; }
+  .error-sub { font-size: 13px; color: #888; text-align: center; line-height: 1.5; }
+  .btn { background: #1976D2; color: white; border: none; border-radius: 8px; padding: 12px 24px; font-size: 15px; cursor: pointer; font-weight: 500; margin-top: 8px; }
+  .btn-outline { background: transparent; color: #1976D2; border: 2px solid #1976D2; border-radius: 8px; padding: 10px 24px; font-size: 14px; cursor: pointer; font-weight: 500; }
+
+  /* ---- Pantalla 2: Selector de empleado ---- */
+  .search-bar { display: flex; align-items: center; background: #fff; border: 1.5px solid #ddd; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; gap: 10px; }
+  .search-bar input { border: none; outline: none; font-size: 15px; width: 100%; background: transparent; }
+  .search-icon { color: #999; font-size: 18px; }
+  .employee-list { display: flex; flex-direction: column; gap: 4px; }
+  .employee-item { background: #fff; border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border: 1.5px solid transparent; transition: border-color 0.15s; }
+  .employee-item:hover { border-color: #1976D2; }
+  .employee-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #1976D2; font-size: 16px; flex-shrink: 0; }
+  .employee-name { font-size: 14px; font-weight: 600; color: #222; }
+  .employee-meta { font-size: 12px; color: #888; margin-top: 2px; }
+  .chip { display: inline-block; background: #e3f2fd; color: #1976D2; font-size: 11px; border-radius: 12px; padding: 2px 8px; font-weight: 600; margin-left: 4px; }
+  .section-hint { font-size: 12px; color: #aaa; margin-bottom: 10px; padding: 0 4px; }
+
+  /* ---- Pantalla 3A: Revisión — Lista vertical ---- */
+  .day-card { background: #fff; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border-left: 4px solid #1976D2; }
+  .day-card.libre { border-left-color: #81c784; }
+  .day-card.vacaciones { border-left-color: #ff8a65; }
+  .day-card.unknown { border-left-color: #bdbdbd; }
+  .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .day-name { font-size: 14px; font-weight: 700; color: #222; }
+  .day-date { font-size: 12px; color: #888; }
+  .status-badge { font-size: 11px; border-radius: 10px; padding: 3px 10px; font-weight: 600; }
+  .badge-work { background: #e3f2fd; color: #1565c0; }
+  .badge-free { background: #e8f5e9; color: #2e7d32; }
+  .badge-vac { background: #fff3e0; color: #e65100; }
+  .badge-unk { background: #f5f5f5; color: #757575; }
+  .shift-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid #f0f0f0; }
+  .shift-time { font-size: 15px; font-weight: 600; color: #1976D2; }
+  .shift-arrow { color: #bbb; font-size: 14px; }
+  .shift-duration { font-size: 12px; color: #aaa; margin-left: auto; }
+  .alarm-toggle { font-size: 18px; cursor: pointer; }
+  .fab { position: relative; align-self: flex-end; background: #1976D2; color: white; border: none; border-radius: 16px; padding: 14px 24px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 16px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(25,118,210,0.35); }
+
+  /* ---- Pantalla 3B: Revisión — Tarjetas horizontales (semana) ---- */
+  .week-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 12px; }
+  .week-day-card { min-width: 90px; background: #fff; border-radius: 12px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; border: 2px solid transparent; cursor: pointer; flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .week-day-card.selected { border-color: #1976D2; }
+  .week-day-card.libre-h { background: #f1f8f1; }
+  .week-day-card.vac-h { background: #fff8f3; }
+  .wday-name { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; }
+  .wday-num { font-size: 22px; font-weight: 800; color: #222; }
+  .wday-shift { font-size: 10px; font-weight: 600; color: #1976D2; text-align: center; line-height: 1.4; }
+  .wday-badge { font-size: 10px; color: #81c784; font-weight: 700; }
+  .detail-panel { background: #fff; border-radius: 14px; padding: 16px; margin-top: 4px; }
+  .detail-title { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 12px; }
+  .detail-shift { display: flex; align-items: center; gap: 12px; background: #f3f8ff; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .detail-time { font-size: 18px; font-weight: 700; color: #1976D2; }
+  .detail-meta { font-size: 13px; color: #888; }
+
+  /* ---- Pantalla 3C: Revisión — Vista simplificada (solo horas clave) ---- */
+  .simple-day { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 14px; }
+  .simple-dot { width: 10px; height: 10px; border-radius: 50%; background: #1976D2; flex-shrink: 0; }
+  .simple-dot.libre { background: #81c784; }
+  .simple-dot.vac { background: #ff8a65; }
+  .simple-day-name { font-size: 13px; color: #555; width: 40px; flex-shrink: 0; }
+  .simple-date { font-size: 12px; color: #bbb; width: 50px; flex-shrink: 0; }
+  .simple-shift { font-size: 15px; font-weight: 700; color: #1976D2; flex: 1; }
+  .simple-status { font-size: 13px; color: #aaa; flex: 1; font-style: italic; }
+  .simple-alarm { font-size: 18px; }
+
+  .divider { border: none; border-top: 1px solid #eee; margin: 16px 0; }
+  .header-info { background: #e3f2fd; border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 13px; color: #1565c0; }
+  .header-info b { font-weight: 700; }
+
+  .tabs { display: flex; border-bottom: 2px solid #e0e0e0; margin-bottom: 0; }
+  .tab { flex: 1; padding: 12px; text-align: center; font-size: 13px; font-weight: 600; color: #aaa; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #1976D2; border-bottom-color: #1976D2; }
+  .tab-content { padding: 16px; }
+
+  .note { background: #fff8e1; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #795548; line-height: 1.5; margin-top: 8px; }
+  .nota-label { font-weight: 700; }
+
+  /* ---- Edición: dialogs y bottom sheet ---- */
+  .section-title { font-size: 18px; font-weight: 700; color: #333; margin: 48px 0 6px; }
+  .section-sub { font-size: 13px; color: #888; margin-bottom: 28px; }
+
+  .overlay-bg {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 24px; z-index: 10;
+  }
+  .native-picker {
+    background: #fff; border-radius: 20px; padding: 20px;
+    width: 280px; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .picker-title { font-size: 12px; color: #666; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 16px; }
+  .clock-face {
+    width: 200px; height: 200px; border-radius: 50%; background: #f3f8ff;
+    margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;
+    position: relative; border: 2px solid #e3f2fd;
+  }
+  .clock-center { width: 8px; height: 8px; border-radius: 50%; background: #1976D2; }
+  .clock-hand {
+    position: absolute; bottom: 50%; left: 50%; width: 2px; height: 70px;
+    background: #1976D2; transform-origin: bottom center;
+    transform: translateX(-50%) rotate(-60deg);
+  }
+  .clock-hand::after {
+    content: ''; position: absolute; top: -8px; left: 50%;
+    transform: translateX(-50%);
+    width: 28px; height: 28px; border-radius: 50%; background: #1976D2;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .clock-display { font-size: 32px; font-weight: 700; color: #1976D2; text-align: center; margin-bottom: 8px; letter-spacing: 2px; }
+  .clock-ampm { display: flex; gap: 8px; justify-content: center; margin-bottom: 12px; }
+  .ampm-btn { padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; border: 1.5px solid #1976D2; color: #1976D2; background: transparent; cursor: pointer; }
+  .ampm-btn.active { background: #1976D2; color: white; }
+  .picker-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 4px; }
+  .picker-btn { font-size: 14px; font-weight: 600; color: #1976D2; background: none; border: none; cursor: pointer; padding: 6px 8px; }
+
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    background: #fff; border-radius: 24px 24px 0 0;
+    padding: 16px; box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
+  }
+  .bs-handle { width: 36px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px; }
+  .bs-title { font-size: 16px; font-weight: 700; color: #222; margin-bottom: 4px; }
+  .bs-subtitle { font-size: 12px; color: #aaa; margin-bottom: 16px; }
+  .wheels-row { display: flex; gap: 8px; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .wheel-col { display: flex; flex-direction: column; align-items: center; }
+  .wheel-label { font-size: 10px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .wheel {
+    width: 72px; height: 120px; overflow: hidden;
+    border-radius: 10px; background: #f8f9fa; position: relative;
+    border: 1.5px solid #e0e0e0;
+  }
+  .wheel-inner { display: flex; flex-direction: column; align-items: center; padding: 36px 0; }
+  .wheel-item { font-size: 18px; font-weight: 600; color: #bbb; padding: 4px 0; line-height: 1.4; width: 100%; text-align: center; }
+  .wheel-item.selected { color: #1976D2; font-size: 22px; font-weight: 800; }
+  .wheel-highlight {
+    position: absolute; top: 50%; left: 0; right: 0; height: 36px;
+    transform: translateY(-50%); background: #e3f2fd; border-radius: 6px;
+    border-top: 1.5px solid #1976D2; border-bottom: 1.5px solid #1976D2;
+  }
+  .wheel-sep { font-size: 26px; font-weight: 700; color: #555; padding: 0 2px; margin-top: 28px; }
+  .bs-apply { background: #1976D2; color: white; border: none; border-radius: 10px; padding: 13px; width: 100%; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+  .status-chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0 14px; }
+  .status-chip { padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 2px solid transparent; cursor: pointer; }
+  .chip-trabajo { background: #e3f2fd; color: #1565c0; border-color: #1976D2; }
+  .chip-libre { background: #e8f5e9; color: #2e7d32; }
+  .chip-vac { background: #fff3e0; color: #e65100; }
+
+  .edit-hint { background: #f3f8ff; border-radius: 8px; padding: 9px 13px; font-size: 11px; color: #1976D2; margin-top: 6px; }
+  .phone-wrap { position: relative; min-height: 640px; }
+</style>
+</head>
+<body>
+
+<h1>Fase 2 — Mockups de pantallas</h1>
+<p class="subtitle">Cuadrantes app · diseño en exploración</p>
+
+<div class="screens">
+
+  <!-- ===== PANTALLA 1: CARGANDO ===== -->
+  <div class="screen-group">
+    <div class="screen-label">1A · Cargando PDF</div>
+    <div class="phone">
+      <div class="status-bar"></div>
+      <div class="top-bar">Cuadrantes</div>
+      <div class="content" style="display:flex;flex-direction:column;">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <div class="loading-title">Analizando cuadrante…</div>
+          <div class="loading-sub">07 PZA MAR JUL BBB 2026.pdf</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANTALLA 1B: SELECTOR MANUAL ===== -->
+  <div class="screen-group">
+    <div class="screen-label">1B · Pantalla de inicio</div>
+    <div class="phone">
+      <div class="status-bar"></div>
+      <div class="top-bar">Cuadrantes</div>
+      <div class="content" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px;">
+        <div style="font-size:64px;">📋</div>
+        <div style="font-size:18px;font-weight:700;color:#333;text-align:center;">Importa tu cuadrante</div>
+        <div style="font-size:14px;color:#888;text-align:center;line-height:1.6;">
+          Comparte el PDF desde WhatsApp o Google Drive, o ábrelo desde el explorador
+        </div>
+        <button class="btn">Seleccionar PDF</button>
+        <div class="note"><span class="nota-label">Tip:</span> También puedes compartir directamente el PDF desde cualquier app y elegir "Cuadrantes"</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANTALLA 2: SELECTOR DE EMPLEADO ===== -->
+  <div class="screen-group">
+    <div class="screen-label">2 · Selector de empleado</div>
+    <div class="phone">
+      <div class="status-bar"></div>
+      <div class="top-bar">
+        <span class="back">←</span>
+        Elige empleado
+      </div>
+      <div class="content">
+        <div class="header-info">
+          <b>PLAZA MAR</b> · Semana 31 · 27 jul – 2 ago 2026
+        </div>
+        <div class="search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Buscar por nombre…" value="Wesley">
+        </div>
+        <div class="section-hint">3 empleados encontrados</div>
+        <div class="employee-list">
+          <div class="employee-item" style="border-color:#1976D2; background:#f0f7ff;">
+            <div class="employee-avatar">W</div>
+            <div>
+              <div class="employee-name">WESLEY FABIAN MURILLO CASTRO</div>
+              <div class="employee-meta">Nº 20 · 27h<span class="chip">coincidencia</span></div>
+            </div>
+          </div>
+          <div class="employee-item" style="opacity:0.5;">
+            <div class="employee-avatar" style="background:#f5f5f5;color:#aaa;">W</div>
+            <div>
+              <div class="employee-name" style="color:#aaa;">WENDRISMAR LISMAR …</div>
+              <div class="employee-meta" style="color:#ccc;">Nº 12</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px;text-align:center;">
+          <button class="btn" style="width:100%;">Confirmar selección</button>
+          <div style="font-size:12px;color:#aaa;margin-top:8px;">o desplázate para ver todos los empleados</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANTALLA 3A: REVISIÓN — LISTA VERTICAL ===== -->
+  <div class="screen-group">
+    <div class="screen-label">3A · Revisión — Lista vertical</div>
+    <div class="phone">
+      <div class="status-bar"></div>
+      <div class="top-bar">
+        <span class="back">←</span>
+        Wesley Murillo
+      </div>
+      <div class="content">
+        <div class="header-info"><b>Sem. 31</b> · 27 jul – 2 ago · PLAZA MAR</div>
+
+        <!-- Lunes -->
+        <div class="day-card">
+          <div class="day-header">
+            <div><div class="day-name">Lunes</div><div class="day-date">27 jul</div></div>
+            <span class="status-badge badge-work">TRABAJO</span>
+          </div>
+          <div class="shift-row">
+            <span class="shift-time">10:00</span>
+            <span class="shift-arrow">→</span>
+            <span class="shift-time">15:00</span>
+            <span class="shift-duration">5h</span>
+            <span class="alarm-toggle">🔔</span>
+          </div>
+        </div>
+
+        <!-- Martes -->
+        <div class="day-card libre">
+          <div class="day-header">
+            <div><div class="day-name">Martes</div><div class="day-date">28 jul</div></div>
+            <span class="status-badge badge-free">LIBRE</span>
+          </div>
+        </div>
+
+        <!-- Miércoles -->
+        <div class="day-card libre">
+          <div class="day-header">
+            <div><div class="day-name">Miércoles</div><div class="day-date">29 jul</div></div>
+            <span class="status-badge badge-free">LIBRE</span>
+          </div>
+        </div>
+
+        <!-- Jueves -->
+        <div class="day-card">
+          <div class="day-header">
+            <div><div class="day-name">Jueves</div><div class="day-date">30 jul</div></div>
+            <span class="status-badge badge-work">TRABAJO</span>
+          </div>
+          <div class="shift-row">
+            <span class="shift-time">09:00</span>
+            <span class="shift-arrow">→</span>
+            <span class="shift-time">14:30</span>
+            <span class="shift-duration">5h30</span>
+            <span class="alarm-toggle">🔔</span>
+          </div>
+        </div>
+
+        <!-- Viernes -->
+        <div class="day-card">
+          <div class="day-header">
+            <div><div class="day-name">Viernes</div><div class="day-date">31 jul</div></div>
+            <span class="status-badge badge-work">TRABAJO</span>
+          </div>
+          <div class="shift-row">
+            <span class="shift-time">10:00</span>
+            <span class="shift-arrow">→</span>
+            <span class="shift-time">15:00</span>
+            <span class="shift-duration">5h</span>
+            <span class="alarm-toggle">🔔</span>
+          </div>
+        </div>
+
+        <!-- Sábado -->
+        <div class="day-card">
+          <div class="day-header">
+            <div><div class="day-name">Sábado</div><div class="day-date">1 ago</div></div>
+            <span class="status-badge badge-work">TRABAJO</span>
+          </div>
+          <div class="shift-row">
+            <span class="shift-time">15:00</span>
+            <span class="shift-arrow">→</span>
+            <span class="shift-time">22:00</span>
+            <span class="shift-duration">7h</span>
+            <span class="alarm-toggle">🔔</span>
+          </div>
+        </div>
+
+        <!-- Domingo -->
+        <div class="day-card">
+          <div class="day-header">
+            <div><div class="day-name">Domingo</div><div class="day-date">2 ago</div></div>
+            <span class="status-badge badge-work">TRABAJO</span>
+          </div>
+          <div class="shift-row">
+            <span class="shift-time">10:00</span>
+            <span class="shift-arrow">→</span>
+            <span class="shift-time">15:00</span>
+            <span class="shift-duration">5h</span>
+            <span class="alarm-toggle">🔔</span>
+          </div>
+        </div>
+
+        <div style="height:16px;"></div>
+        <button class="btn" style="width:100%;border-radius:12px;padding:14px;">🔔 Programar alarmas (5 días)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PANTALLA 3B: REVISIÓN — VISTA SEMANA HORIZONTAL ===== -->
+  <div class="screen-group">
+    <div class="screen-label">3B · Revisión — Semana horizontal + detalle</div>
+    <div class="phone">
+      <div class="status-bar"></div>
+      <div class="top-bar">
+        <span class="back">←</span>
+        Wesley Murillo
+      </div>
+      <div class="content" style="padding:12px;">
+        <div class="header-info" style="margin-bottom:12px;"><b>Sem. 31</b> · 27 jul – 2 ago · PLAZA MAR</div>
+
+        <!-- Scroll horizontal de días -->
+        <div class="week-scroll">
+          <div class="week-day-card">
+            <div class="wday-name">LUN</div>
+            <div class="wday-num">27</div>
+            <div class="wday-shift">10:00<br>15:00</div>
+            <div style="font-size:16px;">🔔</div>
+          </div>
+          <div class="week-day-card libre-h">
+            <div class="wday-name">MAR</div>
+            <div class="wday-num">28</div>
+            <div class="wday-badge">LIBRE</div>
+          </div>
+          <div class="week-day-card libre-h">
+            <div class="wday-name">MIÉ</div>
+            <div class="wday-num">29</div>
+            <div class="wday-badge">LIBRE</div>
+          </div>
+          <div class="week-day-card selected">
+            <div class="wday-name">JUE</div>
+            <div class="wday-num" style="color:#1976D2;">30</div>
+            <div class="wday-shift">09:00<br>14:30</div>
+            <div style="font-size:16px;">🔔</div>
+          </div>
+          <div class="week-day-card">
+            <div class="wday-name">VIE</div>
+            <div class="wday-num">31</div>
+            <div class="wday-shift">10:00<br>15:00</div>
+            <div style="font-size:16px;">🔔</div>
+          </div>
+          <div class="week-day-card">
+            <div class="wday-name">SÁB</div>
+            <div class="wday-num">1</div>
+            <div class="wday-shift">15:00<br>22:00</div>
+            <div style="font-size:16px;">🔔</div>
+          </div>
+          <div class="week-day-card">
+            <div class="wday-name">DOM</div>
+            <div class="wday-num">2</div>
+            <div class="wday-shift">10:00<br>15:00</div>
+            <div style="font-size:16px;">🔔</div>
+          </div>
+        </div>
+
+        <!-- Panel de detalle del día seleccionado -->
+        <div class="detail-panel">
+          <div class="detail-title">Jueves 30 jul</div>
+          <div class="detail-shift">
+            <div>
+              <div class="detail-meta">Turno único</div>
+              <div class="detail-time">09:00 → 14:30</div>
+            </div>
+            <div style="margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:4px;">
+              <div style="font-size:22px;cursor:pointer;">🔔</div>
+              <div style="font-size:11px;color:#aaa;">alarm. 08:00</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#aaa;margin-top:4px;">Alarma 1h antes: <b style="color:#1976D2;">08:00</b></div>
+        </div>
+
+        <div style="height:16px;"></div>
+        <button class="btn" style="width:100%;border-radius:12px;padding:14px;">🔔 Programar alarmas (5 días)</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ====================================================== -->
+<!--  PREGUNTA 2: ¿Cómo editar los turnos?                  -->
+<!-- ====================================================== -->
+<div class="section-title">Pregunta 2 · ¿Cómo editar las horas del turno?</div>
+<p class="section-sub">Tap en "09:00" dentro del panel de detalle → se abre una de estas dos opciones</p>
+
+<div class="screens">
+
+  <!-- ===== OPCIÓN A: Time picker NATIVO ===== -->
+  <div class="screen-group">
+    <div class="screen-label">A · Selector de hora nativo (Android)</div>
+    <div class="phone" style="position:relative;min-height:640px;">
+      <div class="status-bar"></div>
+      <div class="top-bar">
+        <span class="back">←</span>
+        Wesley Murillo
+      </div>
+      <div class="content" style="padding:12px;position:relative;overflow:hidden;">
+        <div class="header-info" style="margin-bottom:12px;"><b>Sem. 31</b> · 27 jul – 2 ago · PLAZA MAR</div>
+
+        <!-- Semana (desenfocada) -->
+        <div class="week-scroll" style="opacity:0.3;pointer-events:none;">
+          <div class="week-day-card"><div class="wday-name">LUN</div><div class="wday-num">27</div><div class="wday-shift">10:00<br>15:00</div></div>
+          <div class="week-day-card libre-h"><div class="wday-name">MAR</div><div class="wday-num">28</div><div class="wday-badge">LIBRE</div></div>
+          <div class="week-day-card selected"><div class="wday-name">JUE</div><div class="wday-num" style="color:#1976D2;">30</div><div class="wday-shift">09:00<br>14:30</div></div>
+          <div class="week-day-card"><div class="wday-name">VIE</div><div class="wday-num">31</div><div class="wday-shift">10:00<br>15:00</div></div>
+        </div>
+        <div class="detail-panel" style="opacity:0.3;">
+          <div class="detail-title">Jueves 30 jul</div>
+          <div class="detail-shift">
+            <div>
+              <div class="detail-meta">Turno único</div>
+              <div class="detail-time" style="text-decoration:underline;cursor:pointer;">09:00 → 14:30</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- OVERLAY con time picker nativo -->
+        <div class="overlay-bg">
+          <div class="native-picker">
+            <div class="picker-title">Hora de entrada — Jueves</div>
+            <div class="clock-display">09:00</div>
+            <div class="clock-face">
+              <div class="clock-center"></div>
+              <div class="clock-hand"></div>
+              <!-- números del reloj simplificados -->
+              <div style="position:absolute;top:12px;font-size:13px;font-weight:700;color:#555;">12</div>
+              <div style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:700;color:#555;">3</div>
+              <div style="position:absolute;bottom:12px;font-size:13px;font-weight:700;color:#555;">6</div>
+              <div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:700;color:#555;">9</div>
+              <div style="position:absolute;top:24px;right:28px;font-size:11px;color:#bbb;">1</div>
+              <div style="position:absolute;top:24px;left:28px;font-size:11px;color:#bbb;">11</div>
+              <div style="position:absolute;bottom:24px;right:28px;font-size:11px;color:#bbb;">5</div>
+              <div style="position:absolute;bottom:24px;left:28px;font-size:11px;color:#bbb;">7</div>
+            </div>
+            <div style="display:flex;gap:6px;justify-content:center;margin-bottom:12px;">
+              <span style="padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;border:1.5px solid #bbb;color:#bbb;">horas</span>
+              <span style="padding:2px 10px;border-radius:6px;font-size:12px;font-weight:700;border:1.5px solid #1976D2;color:#fff;background:#1976D2;">minutos</span>
+            </div>
+            <div class="picker-actions">
+              <button class="picker-btn" style="color:#888;">Cancelar</button>
+              <button class="picker-btn">Aceptar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="max-width:280px;">
+      <span class="nota-label">Pros:</span> cero código de UI, familiar para el usuario, accesible.<br>
+      <span class="nota-label">Contra:</span> no podemos cambiar colores/tipografía para que encaje con Material 3 propio; el picker de minutos solo ofrece saltos de 5 min en algunos fabricantes.
+    </div>
+  </div>
+
+  <!-- ===== OPCIÓN B: Bottom sheet propio ===== -->
+  <div class="screen-group">
+    <div class="screen-label">B · Bottom sheet propio con ruedas</div>
+    <div class="phone" style="position:relative;min-height:640px;">
+      <div class="status-bar"></div>
+      <div class="top-bar">
+        <span class="back">←</span>
+        Wesley Murillo
+      </div>
+      <div class="content" style="padding:12px;position:relative;overflow:hidden;">
+        <div class="header-info" style="margin-bottom:12px;opacity:0.4;"><b>Sem. 31</b> · 27 jul – 2 ago · PLAZA MAR</div>
+
+        <!-- Semana (desenfocada) -->
+        <div class="week-scroll" style="opacity:0.25;pointer-events:none;">
+          <div class="week-day-card"><div class="wday-name">LUN</div><div class="wday-num">27</div><div class="wday-shift">10:00<br>15:00</div></div>
+          <div class="week-day-card libre-h"><div class="wday-name">MAR</div><div class="wday-num">28</div><div class="wday-badge">LIBRE</div></div>
+          <div class="week-day-card selected"><div class="wday-name">JUE</div><div class="wday-num" style="color:#1976D2;">30</div><div class="wday-shift">09:00<br>14:30</div></div>
+          <div class="week-day-card"><div class="wday-name">VIE</div><div class="wday-num">31</div><div class="wday-shift">10:00<br>15:00</div></div>
+        </div>
+        <div class="detail-panel" style="opacity:0.25;">
+          <div class="detail-title">Jueves 30 jul</div>
+          <div class="detail-shift">
+            <div>
+              <div class="detail-meta">Turno único</div>
+              <div class="detail-time">09:00 → 14:30</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overlay oscuro -->
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);border-radius:24px;z-index:9;"></div>
+
+        <!-- BOTTOM SHEET propio -->
+        <div class="bottom-sheet">
+          <div class="bs-handle"></div>
+          <div class="bs-title">Hora de entrada</div>
+          <div class="bs-subtitle">Jueves 30 jul · turno único</div>
+          <div class="wheels-row">
+            <!-- Rueda horas -->
+            <div class="wheel-col">
+              <div class="wheel-label">Horas</div>
+              <div class="wheel">
+                <div class="wheel-highlight"></div>
+                <div class="wheel-inner">
+                  <div class="wheel-item" style="opacity:0.3;">07</div>
+                  <div class="wheel-item" style="opacity:0.6;">08</div>
+                  <div class="wheel-item selected">09</div>
+                  <div class="wheel-item" style="opacity:0.6;">10</div>
+                  <div class="wheel-item" style="opacity:0.3;">11</div>
+                </div>
+              </div>
+            </div>
+            <div class="wheel-sep">:</div>
+            <!-- Rueda minutos -->
+            <div class="wheel-col">
+              <div class="wheel-label">Min</div>
+              <div class="wheel">
+                <div class="wheel-highlight"></div>
+                <div class="wheel-inner">
+                  <div class="wheel-item" style="opacity:0.3;">45</div>
+                  <div class="wheel-item" style="opacity:0.6;">50</div>
+                  <div class="wheel-item selected">00</div>
+                  <div class="wheel-item" style="opacity:0.6;">05</div>
+                  <div class="wheel-item" style="opacity:0.3;">10</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="edit-hint">Hora seleccionada: <b>09:00</b> · (desliza para cambiar)</div>
+          <div style="height:10px;"></div>
+          <button class="bs-apply">Aplicar cambio</button>
+        </div>
+      </div>
+    </div>
+    <div class="note" style="max-width:280px;">
+      <span class="nota-label">Pros:</span> control total del estilo, minutos con precisión de 1 min, se puede combinar inicio/fin en un solo sheet.<br>
+      <span class="nota-label">Contra:</span> ~80–120 líneas de Compose extra para la rueda; comportamiento de scroll/snap menos pulido que el nativo.
+    </div>
+  </div>
+
+  <!-- ===== BONUS: Cambio de estado del día ===== -->
+  <div class="screen-group">
+    <div class="screen-label">C · Cambio de estado (TRABAJO ↔ LIBRE)</div>
+    <div class="phone" style="min-height:640px;">
+      <div class="status-bar"></div>
+      <div class="top-bar">
+        <span class="back">←</span>
+        Wesley Murillo
+      </div>
+      <div class="content" style="padding:12px;">
+        <div class="header-info" style="margin-bottom:12px;"><b>Sem. 31</b> · 27 jul – 2 ago · PLAZA MAR</div>
+
+        <div class="week-scroll">
+          <div class="week-day-card"><div class="wday-name">LUN</div><div class="wday-num">27</div><div class="wday-shift">10:00<br>15:00</div></div>
+          <div class="week-day-card libre-h"><div class="wday-name">MAR</div><div class="wday-num">28</div><div class="wday-badge">LIBRE</div></div>
+          <div class="week-day-card selected"><div class="wday-name">JUE</div><div class="wday-num" style="color:#1976D2;">30</div><div class="wday-shift">09:00<br>14:30</div></div>
+          <div class="week-day-card"><div class="wday-name">VIE</div><div class="wday-num">31</div><div class="wday-shift">10:00<br>15:00</div></div>
+          <div class="week-day-card"><div class="wday-name">SÁB</div><div class="wday-num">1</div><div class="wday-shift">15:00<br>22:00</div></div>
+          <div class="week-day-card"><div class="wday-name">DOM</div><div class="wday-num">2</div><div class="wday-shift">10:00<br>15:00</div></div>
+        </div>
+
+        <!-- Panel de detalle con selector de estado -->
+        <div class="detail-panel">
+          <div class="detail-title">Jueves 30 jul</div>
+
+          <!-- Selector de estado como chips -->
+          <div style="font-size:12px;color:#888;margin-bottom:6px;">Tipo de día (tap para cambiar)</div>
+          <div class="status-chip-row">
+            <div class="status-chip chip-trabajo">Trabajo ✓</div>
+            <div class="status-chip chip-libre" style="border-color:#81c784;">Libre</div>
+            <div class="status-chip chip-vac" style="border-color:#ff8a65;">Vacaciones</div>
+          </div>
+
+          <!-- Turno (solo visible cuando status=TRABAJO) -->
+          <div style="border-top:1px solid #f0f0f0;padding-top:12px;margin-top:4px;">
+            <div class="detail-shift">
+              <div>
+                <div class="detail-meta">Hora entrada</div>
+                <div class="detail-time" style="cursor:pointer;text-decoration:underline dotted #1976D2;">09:00</div>
+              </div>
+              <div style="font-size:22px;color:#ccc;padding:0 8px;">→</div>
+              <div>
+                <div class="detail-meta">Hora salida</div>
+                <div class="detail-time" style="cursor:pointer;text-decoration:underline dotted #1976D2;">14:30</div>
+              </div>
+              <div style="margin-left:auto;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                <div style="font-size:22px;cursor:pointer;">🔔</div>
+                <div style="font-size:11px;color:#aaa;">08:00</div>
+              </div>
+            </div>
+          </div>
+          <div class="edit-hint">Toca las horas subrayadas para editarlas</div>
+        </div>
+
+        <div style="height:16px;"></div>
+        <button class="btn" style="width:100%;border-radius:12px;padding:14px;">🔔 Programar alarmas (5 días)</button>
+      </div>
+    </div>
+    <div class="note" style="max-width:280px;">
+      <span class="nota-label">Cómo funciona:</span> los tres chips son mutuamente excluyentes. Al elegir "Libre" o "Vacaciones" el bloque de turno desaparece y la alarma se desactiva automáticamente. Al volver a "Trabajo" se restaura el turno original del PDF.
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:48px; padding: 16px; background:#fff; border-radius:12px; max-width:860px; border: 1px solid #e0e0e0;">
+  <h2 style="font-size:16px;color:#333;margin-bottom:12px;">Comparación de enfoques para la pantalla de revisión</h2>
+  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <thead>
+      <tr style="background:#f5f7fa;">
+        <th style="text-align:left;padding:8px 12px;color:#555;">Aspecto</th>
+        <th style="text-align:left;padding:8px 12px;color:#1976D2;">3A · Lista vertical</th>
+        <th style="text-align:left;padding:8px 12px;color:#555;">3B · Semana + detalle</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-top:1px solid #f0f0f0;">
+        <td style="padding:8px 12px;color:#555;">Vista general</td>
+        <td style="padding:8px 12px;">Todos los días de un vistazo</td>
+        <td style="padding:8px 12px;">Requiere scroll horizontal + tap</td>
+      </tr>
+      <tr style="border-top:1px solid #f0f0f0;background:#fafafa;">
+        <td style="padding:8px 12px;color:#555;">Espacio para edición</td>
+        <td style="padding:8px 12px;">Generoso, fácil de ampliar</td>
+        <td style="padding:8px 12px;">Panel de detalle expandible</td>
+      </tr>
+      <tr style="border-top:1px solid #f0f0f0;">
+        <td style="padding:8px 12px;color:#555;">Complejidad UI</td>
+        <td style="padding:8px 12px;color:#2e7d32;font-weight:600;">Simple ✓</td>
+        <td style="padding:8px 12px;color:#e65100;">Mayor — estado seleccionado</td>
+      </tr>
+      <tr style="border-top:1px solid #f0f0f0;background:#fafafa;">
+        <td style="padding:8px 12px;color:#555;">Alarma por turno</td>
+        <td style="padding:8px 12px;">Toggle visible en cada fila</td>
+        <td style="padding:8px 12px;">En panel de detalle</td>
+      </tr>
+      <tr style="border-top:1px solid #f0f0f0;">
+        <td style="padding:8px 12px;color:#555;">Recomendado para F2</td>
+        <td style="padding:8px 12px;color:#2e7d32;font-weight:600;">✅ Sí</td>
+        <td style="padding:8px 12px;color:#aaa;">F3 / ampliación futura</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
