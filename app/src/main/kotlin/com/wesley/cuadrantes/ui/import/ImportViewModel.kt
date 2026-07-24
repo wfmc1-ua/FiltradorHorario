@@ -2,10 +2,10 @@ package com.wesley.cuadrantes.ui.import
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import com.wesley.cuadrantes.AppContainer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -45,8 +45,9 @@ class ImportViewModel(
                     _state.value = ImportUiState.Done
                 },
                 onFailure = { e ->
+                    Log.e("ImportViewModel", "Error importando PDF", e)
                     _state.value = ImportUiState.Error(
-                        e.message ?: "Error al leer el PDF"
+                        "[${e.javaClass.simpleName}] ${e.message ?: "Error desconocido"}"
                     )
                 },
             )

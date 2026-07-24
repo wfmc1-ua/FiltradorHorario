@@ -1,10 +1,10 @@
 package com.wesley.cuadrantes.parser
 
+import android.util.Log
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import com.tom_roush.pdfbox.text.TextPosition
 import java.io.InputStream
-import java.io.Writer
 
 class PdfBoxTextExtractor : PdfTextExtractor {
 
@@ -14,6 +14,10 @@ class PdfBoxTextExtractor : PdfTextExtractor {
             val stripper = PositionedStripper(result)
             stripper.sortByPosition = true
             stripper.getText(doc)
+        }
+        Log.d("PdfTokens", "Total tokens: ${result.size}")
+        result.take(80).forEachIndexed { i, t ->
+            Log.d("PdfTokens", "[$i] '${t.text}' x=${t.x.toInt()} y=${t.y.toInt()}")
         }
         return result
     }
@@ -29,22 +33,15 @@ class PdfBoxTextExtractor : PdfTextExtractor {
             result.add(PositionedText(trimmed, pos.xDirAdj, pos.yDirAdj))
         }
 
-        override fun writePage() {}
-
+        // Suprimir la escritura al Writer interno pero NO tocar writePage():
+        // writePage() es el que agrupa posiciones y llama a nuestro writeString.
         override fun writeString(text: String) {}
-
         override fun writeLineSeparator() {}
-
         override fun writeWordSeparator() {}
-
         override fun writeCharacters(text: TextPosition) {}
-
         override fun writePageStart() {}
-
         override fun writePageEnd() {}
-
         override fun startDocument(document: PDDocument) {}
-
         override fun endDocument(document: PDDocument) {}
     }
 }
