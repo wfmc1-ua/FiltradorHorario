@@ -20,34 +20,48 @@ class EmployeeRowMapper {
     fun map(row: GridRow, columns: List<ColumnHeader>): EmployeeSchedule? {
         val meta = row.metaTokens
 
-        // Must have a row number as first token (small positive integer)
-        val rowNumToken = meta.firstOrNull() ?: return null
-        if (!rowNumToken.text.matches(Regex("""^\d{1,3}$"""))) return null
-        val rowNum = rowNumToken.text.toInt()
+        // Extract row number from start of first meta token.
+        // On Android PDFBox merges nearby tokens: "4" + "Y6853762Y" → "4Y6853762Y".
+        val firstTokenText = meta.firstOrNull()?.text?.trim() ?: return null
+        val rowNumLen = firstTokenText.takeWhile { it.isDigit() }.length
+        if (rowNumLen == 0 || rowNumLen > 3) return null
+        val rowNum = firstTokenText.take(rowNumLen).toInt()
         if (rowNum < 1 || rowNum > 200) return null
 
-        // Remaining meta tokens after the row number
-        val afterNum = meta.drop(1)
+        // Any content after the digits in the first token gets re-injected as the first element
+        val remainder = firstTokenText.drop(rowNumLen).trim()
+        val afterNum: List<PositionedText> = if (remainder.isEmpty()) {
+            meta.drop(1)
+        } else {
+            val pos = meta.first()
+            listOf(PositionedText(remainder, pos.x, pos.y)) + meta.drop(1)
+        }
         if (afterNum.isEmpty()) return null
 
-        // Check for discardable rows
-        val firstText = afterNum.firstOrNull()?.text?.uppercase() ?: return null
-        if (firstText in DISCARDED_NAMES) return null
+        // Discard non-employee rows
+        val firstWord = afterNum.first().text.trim()
+            .split(Regex("\\s+")).firstOrNull()?.uppercase() ?: return null
+        if (firstWord in DISCARDED_NAMES) return null
 
-        // ID: optional, matches DNI/NIE pattern
+        // ID: optional DNI/NIE
         var idx = 0
         var rawId: String? = null
-        if (ID_PATTERN.matches(afterNum[idx].text)) {
-            rawId = afterNum[idx].text
+        if (ID_PATTERN.matches(afterNum[idx].text.trim())) {
+            rawId = afterNum[idx].text.trim()
             idx++
         }
 
-        // Name: consecutive uppercase-looking tokens
+        // Name: one or more tokens whose words are all purely alphabetic.
+        // Handles both separate ("CORONEL", "SOTO") and merged ("CORONEL SOTO ALEXA") tokens.
         val nameTokens = mutableListOf<String>()
         while (idx < afterNum.size) {
-            val t = afterNum[idx].text
-            if (t.all { it.isLetter() || it == '\'' || it == '-' } && t.length > 1) {
-                nameTokens.add(t.uppercase())
+            val t = afterNum[idx].text.trim()
+            val words = t.split(Regex("\\s+")).filter { it.isNotEmpty() }
+            val isNamePart = words.isNotEmpty() && words.all { w ->
+                w.all { c -> c.isLetter() || c == '\'' || c == '-' } && w.length > 1
+            }
+            if (isNamePart) {
+                nameTokens.addAll(words.map { it.uppercase() })
                 idx++
             } else break
         }
@@ -56,7 +70,7 @@ class EmployeeRowMapper {
 
         // Contract hours: next integer after name, if present
         val contractHours: Int? = if (idx < afterNum.size) {
-            val t = afterNum[idx].text
+            val t = afterNum[idx].text.trim()
             if (HOURS_PATTERN.matches(t)) t.toInt().also { idx++ } else null
         } else null
 

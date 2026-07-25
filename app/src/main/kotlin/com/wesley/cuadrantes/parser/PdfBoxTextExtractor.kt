@@ -1,6 +1,5 @@
 package com.wesley.cuadrantes.parser
 
-import android.util.Log
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import com.tom_roush.pdfbox.text.TextPosition
@@ -14,10 +13,6 @@ class PdfBoxTextExtractor : PdfTextExtractor {
             val stripper = PositionedStripper(result)
             stripper.sortByPosition = true
             stripper.getText(doc)
-        }
-        Log.d("PdfTokens", "Total tokens: ${result.size}")
-        result.take(80).forEachIndexed { i, t ->
-            Log.d("PdfTokens", "[$i] '${t.text}' x=${t.x.toInt()} y=${t.y.toInt()}")
         }
         return result
     }
