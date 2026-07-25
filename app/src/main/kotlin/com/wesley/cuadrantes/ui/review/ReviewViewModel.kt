@@ -3,6 +3,7 @@ package com.wesley.cuadrantes.ui.review
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.wesley.cuadrantes.AppContainer
+import com.wesley.cuadrantes.alarm.AlarmManagerScheduler
 import com.wesley.cuadrantes.alarm.PlannedAlarm
 import com.wesley.cuadrantes.model.DayStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,11 @@ class ReviewViewModel(
 
     private val _plannedAlarms = MutableStateFlow<List<PlannedAlarm>?>(null)
     val plannedAlarms: StateFlow<List<PlannedAlarm>?> = _plannedAlarms
+
+    // true si AlarmManager no tiene permiso de alarmas exactas (API 31+)
+    val needsExactAlarmPermission: Boolean
+        get() = (container.alarmScheduler as? AlarmManagerScheduler)
+            ?.canScheduleExact() == false
 
     init {
         val schedule = container.currentCuadrante!!.employees[employeeIndex]

@@ -1,9 +1,10 @@
 package com.wesley.cuadrantes
 
 import android.content.Context
+import com.wesley.cuadrantes.alarm.AlarmManagerScheduler
 import com.wesley.cuadrantes.alarm.AlarmPlanner
 import com.wesley.cuadrantes.alarm.AlarmScheduler
-import com.wesley.cuadrantes.alarm.IntentAlarmScheduler
+import com.wesley.cuadrantes.alarm.AlarmStore
 import com.wesley.cuadrantes.model.Cuadrante
 import com.wesley.cuadrantes.parser.CuadranteParser
 import com.wesley.cuadrantes.parser.NameMatcher
@@ -17,7 +18,8 @@ class AppContainer(context: Context) {
     val extractor: PdfTextExtractor = PdfBoxTextExtractor()
     val parser: CuadranteParser = CuadranteParser()
     val nameMatcher: NameMatcher = NameMatcher()
-    val alarmScheduler: AlarmScheduler = IntentAlarmScheduler(context)
+    val alarmStore: AlarmStore = AlarmStore(context)
+    val alarmScheduler: AlarmScheduler = AlarmManagerScheduler(context, alarmStore)
     val alarmPlanner: AlarmPlanner = AlarmPlanner(clock)
 
     var currentCuadrante: Cuadrante? = null

@@ -41,6 +41,9 @@ class ImportViewModel(
             }
             result.fold(
                 onSuccess = { cuadrante ->
+                    if (container.currentCuadrante != null) {
+                        container.alarmScheduler.cancelAll()
+                    }
                     container.currentCuadrante = cuadrante
                     _state.value = ImportUiState.Done
                 },

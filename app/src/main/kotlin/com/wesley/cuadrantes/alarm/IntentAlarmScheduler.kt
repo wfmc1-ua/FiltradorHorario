@@ -7,6 +7,8 @@ import com.wesley.cuadrantes.model.AlarmPlan
 
 class IntentAlarmScheduler(private val context: Context) : AlarmScheduler {
 
+    override fun cancelAll() { /* v1 no soporta cancelación */ }
+
     override fun schedule(plan: AlarmPlan) {
         val intent = Intent(AlarmClock.ACTION_SET_ALARM).apply {
             putExtra(AlarmClock.EXTRA_HOUR, plan.time.hour)
