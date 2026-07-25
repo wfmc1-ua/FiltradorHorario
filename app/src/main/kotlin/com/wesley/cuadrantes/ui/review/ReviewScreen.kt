@@ -159,6 +159,38 @@ fun ReviewScreen(viewModel: ReviewViewModel) {
             }
         }
 
+        if (viewModel.needsFullScreenIntentPermission) {
+            Spacer(Modifier.height(8.dp))
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                ),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        "Sin permiso de pantalla completa la alarma no se verá en pantalla de bloqueo",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(onClick = {
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                            context.startActivity(
+                                Intent(android.provider.Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                                    data = Uri.parse("package:${context.packageName}")
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        }
+                    }) { Text("Ajustes") }
+                }
+            }
+        }
+
         Spacer(Modifier.height(12.dp))
         Button(
             onClick = { viewModel.requestAlarmConfirmation() },

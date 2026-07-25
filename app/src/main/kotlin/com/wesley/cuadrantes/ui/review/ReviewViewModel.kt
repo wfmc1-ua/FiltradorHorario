@@ -32,6 +32,11 @@ class ReviewViewModel(
         get() = (container.alarmScheduler as? AlarmManagerScheduler)
             ?.canScheduleExact() == false
 
+    // true si el permiso USE_FULL_SCREEN_INTENT no está concedido (Android 14+)
+    val needsFullScreenIntentPermission: Boolean
+        get() = (container.alarmScheduler as? AlarmManagerScheduler)
+            ?.canUseFullScreenIntent() == false
+
     init {
         val schedule = container.currentCuadrante!!.employees[employeeIndex]
         employeeName = schedule.name

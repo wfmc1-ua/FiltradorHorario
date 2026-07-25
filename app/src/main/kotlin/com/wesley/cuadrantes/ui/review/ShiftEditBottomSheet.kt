@@ -33,8 +33,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.time.LocalTime
-import kotlin.math.roundToInt
-
 enum class ShiftField { START, END }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,13 +116,14 @@ private fun TimeWheel(
 ) {
     val itemHeight = 48.dp
     val visibleItems = 5
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = maxOf(0, selected - 2))
+    // El LazyColumn tiene 2 ítems de padding arriba + items.size reales + 2 de padding abajo.
+    // Para que `items[k]` quede en el centro de 5 filas visibles, firstVisibleItemIndex debe ser k.
+    val listState = rememberLazyListState(initialFirstVisibleItemIndex = selected)
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex + listState.firstVisibleItemScrollOffset / itemHeight.value }
-            .collect { raw ->
-                val idx = raw.roundToInt() + 2
-                if (idx in items.indices) onSelected(items[idx])
+        snapshotFlow { listState.firstVisibleItemIndex }
+            .collect { firstIndex ->
+                if (firstIndex in items.indices) onSelected(items[firstIndex])
             }
     }
 
